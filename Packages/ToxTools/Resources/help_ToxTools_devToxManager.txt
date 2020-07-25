@@ -1,0 +1,50 @@
+DevToxManager Help Page
+
+-------------------------------------------------------------
+
+SUMMARY:
+The DevToxManager handles the saving of development toxes for a certain part (and/or set of tags) of a developer's project.
+
+-------------------------------------------------------------
+
+PARAMETERS - Tox Save Config Page:
+Save Shortcut [Saveshorcut] - Enables manager's save shortcut, allowing for externalization of components within the manager's scope.
+
+Root COMP [Rootcomp] - Manager will scope to everything nested inside of this component in the network. This component, along with any other components inside of it may be externalized.
+
+Only Save Root [Onlysaveroot] - Attempts to only save the scoped Root COMP on the save shortcut.  Warnings/options will display if the current comp is also external.
+
+Root Folder [Rootfolder] - Local file directory where externalized components' files will be saved.
+
+Make Tox Folder [Maketoxfolder] - When enabled, any newly created external file will be saved into a subfolder matching the name of its respective component.
+
+Save Backup Toxes [Savebackups] - When enabled, an already externalized component will have its file backed up into a folder named "Backup" (located next to the current file's save location) 
+before saving out another file.
+
+Update Versions [Updateversions] - When enabled, a 'Tox Version' page and a 'Version' parameter will be appended to newly externalized components. If the component has already been 
+externalized, then this will simply increment the previously appended 'Version' parameter.
+
+Allow Parent Save [Allowparentsave] - When enabled, if a newly externalized component's parent component has previously been externalized then the user will be prompted to save that parent component as well.
+
+Enable Toe Backup [Enabletoebackup] - Sets the value of a newly externalized component's built-in 'Save Backup of External [savebackup]" parameter. This only affects components the first time they are saved.
+
+Help [Help] - Opens manager's help page.
+
+ToxTool Parameters [Toxtoolparameters] - Creates floating window of the ToxTool's parameters.
+
+-------------------------------------------------------------
+
+PARAMETERS - Batch Page:
+Net Dump Tags [Netdumptags] - User defined tags to include in a batch externalization of components. Any component with a tag matching one of these defined values will be externalized in batch externalization.
+
+Net Dump Ignore Tags [Netdumpignoretags] - User defined tags to ignore in a batch externalization of components. Any component with a tag matching one of these defined values will NOT be externalized in batch externalization.
+
+Always Ignore Tags [Alwaysignoretags] - User defined tags to ignore at all times. Any component with a tag matching one of these defined values may NOT be externalized.
+
+Network Dump [NetworkDump] - Runs batch externalization on all components within scope.
+
+Detox Tag [Detoxtag] - User defined tag to be appended to newly de-externalized components in batch de-externalization.
+
+Detox Ignore Tags [Detoxignoretags] - User defined tags to ignore in a batch de-externalization of components. Any component with a tag matching one of these defined values will NOT be de-externalized in batch de-externalization.
+
+Detox [Detox] - Runs batch de-externalization on all components within scope.

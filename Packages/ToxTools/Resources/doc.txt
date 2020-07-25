@@ -1,0 +1,29 @@
+ToxTools documentation 
+last update July 24 2020 :: Peter Sistrom :: 0.2.1
+
+This component is meant to provide wide flexibility in developing in an external tox workflow.
+
+To use place the ToxTools.tox found in Packages/ToxTools into the root of your project.  Open the Tox Manager Pars, set your root, go into your root and start saving comps with ctrl+alt+s!
+
+By default a number of keyboard shortcuts are active, all of which can be adjusted and turned off.
+
+A built in configuration setup is provided to allow customization of usage but keeping the ToxTools component external if desired.
+
+The parameters on ToxTools itself are mainly for configuring the shortcuts and saving/loading your config file.
+
+To access usage customization the easiest way is to use the default shortcut ctrl+alt+t, or you can hit the "Tox Manager Pars" pulse on the Shortcuts page of ToxTools.  This gives you access to the parameters of /ToxTools/devToxManager.
+
+The manager is seperated from the package because the notion of multiple managers is possible though not currently the intended use.
+
+For an in depth description of the various parameters on the devToxManager refer to its help text by pressing the Help pulse on the manager pars.
+
+At a high level ToxTools can allow for the following workflows:
+
+- specifiying a root to "manage" so that paths not within scope cannot be saved easily.
+- auto creating folders based on the network paths of components that get saved and a specified root folder
+- configuring whether to leave backups in the toe, as well as copying and timestamp previously saved toxes in order to prevent work loss.
+- check for external parents in the case of newly saved children and warn or provide quick save options
+- check for all unsaved comps within the specified root via defauly ctrl+alt+u shortcut or when saving the toe or using special quit shortcut ctrl+alt+q
+- hand select from said list to specify what to save in bulk
+- set manager to save only one comp, the specified root, with warnings and options if an existing external within is attempted saving.
+- optionally add a Tox Version par to saved components that increments before saving.

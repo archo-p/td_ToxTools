@@ -1,0 +1,14 @@
+4-16-2020 v0.1.3
+
+Getting things ready for use.  Organized parameters and added simple conifguration setups for package and devToxManager
+Help texts added for reference.
+
+7-24-2020 v0.2.1
+
+Fixes and refinements for Intent Dev usage.  
+- Moving away from the notion of multiple managers, though still technically possible.
+- Main internal devToxManager is made to be soley used
+- Config file setup, saving and loading is completely internal
+- fixed unsaved list dialog so that all dirty toxes show selected on display
+- added Save Root Only toggle to manager, meaning only that comp will save with the save shortcut
+- added checks when in this Save Root Only mode to warn user if they've saved from within another external COMP and provide options
