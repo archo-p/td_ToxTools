@@ -27,3 +27,6 @@ At a high level ToxTools can allow for the following workflows:
 - hand select from said list to specify what to save in bulk
 - set manager to save only one comp, the specified root, with warnings and options if an existing external within is attempted saving.
 - optionally add a Tox Version par to saved components that increments before saving.
+
+Recently untested features include the ability to externalize whole swaths of a hierarchy via defined tags.
+This is what is refered to on the NetworkDump page of the devToxManager, but has not been revisted in a little while and is likely buggy.
