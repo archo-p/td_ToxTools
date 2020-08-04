@@ -21,6 +21,10 @@ class ToxToolsExt:
 		self.DirtyCompsDialog	= self.ownerComp.op('unsavedCompsDialog')
 		self.Lister				= self.DirtyCompsDialog.op('lister')
 
+		# adding attributes for a single manager setup with ToxTools, eventually need to check for other managers
+		self._defaultManager = self.ownerComp.op('devToxManager')
+		self._singleManager = True
+
 	@property
 	def configParser(self):
 		return self.ownerComp.op('configParser')
@@ -175,9 +179,14 @@ class ToxToolsExt:
 			comp.par.Version += 1
 
 	
-	def ExternalizeComp(self, comp, pathInfo = {'pathType':'choose', 'makeToxFolder':True}, backupInfo = {'date':True, 'suffix':None}, doVersion = True, enableToeBackup = False, relativeToxPath = True, updateToxPathPar = True, saveBackups = True):
+	def ExternalizeComp(self, comp, pathInfo = {'pathType':'choose', 'makeToxFolder':True}, backupInfo = {'date':True, 'suffix':None}, doVersion = True, enableToeBackup = False, relativeToxPath = True, updateToxPathPar = True):
 		if doVersion:
 			self.UpdateVersion(comp)
+
+		# if backupInfo is None, don't save backup toxes
+		doBackup = False
+		if backupInfo is not None:
+			doBackup = True
 
 		if pathInfo != None:
 			pathType = pathInfo.get('pathType')
@@ -200,7 +209,7 @@ class ToxToolsExt:
 					os.mkdir(toxfolderPath)
 				savePath = toxfolderPath
 			
-			savedToxInfo = self.SaveTox(comp, savePath, doBackup=saveBackups, backupInfo=backupInfo, enableToeBackup=enableToeBackup)
+			savedToxInfo = self.SaveTox(comp, savePath, doBackup=doBackup, backupInfo=backupInfo, enableToeBackup=enableToeBackup)
 			savedTox = savedToxInfo['savedTox']
 			if savedTox != None:
 				if relativeToxPath:
@@ -217,7 +226,7 @@ class ToxToolsExt:
 
 		else:
 			savePath = '/'.join(comp.par.externaltox.val.split('/')[:-1])
-			self.SaveTox(comp, savePath, doBackup=True)
+			self.SaveTox(comp, savePath, doBackup=doBackup)
 
 	def UnexternalizeComp(self, comp, tagToAppend=None):
 		comp.par.externaltox = ''
@@ -228,21 +237,18 @@ class ToxToolsExt:
 	def FindDevToxManager(self, comp):
 		compToSave = comp
 		manager = None
-		root = op('/')
-		devToxManagers = root.findChildren(tags = ['DevToxManager'])
+		if self._singleManager:
+			manager = self._defaultManager
+		else:
+			devToxManagers = op('/').findChildren(tags = ['DevToxManager'])
 
-		#for dtm in devToxManagers:
-			#parenthood = TDF.parentLevel(op.ToxTools, dtm)
-			#if parenthood != None:
-			#	devToxManagers.remove(dtm)
-
-		if len(devToxManagers) > 0:
-			for dtm in devToxManagers:
-				rootComp = dtm.par.Rootcomp.eval()
-				parenthood = TDF.parentLevel(rootComp, compToSave)
-				if parenthood != None:
-					manager = dtm
-					break
+			if len(devToxManagers) > 0:
+				for dtm in devToxManagers:
+					rootComp = dtm.par.Rootcomp.eval()
+					parenthood = TDF.parentLevel(rootComp, compToSave)
+					if parenthood != None:
+						manager = dtm
+						break
 		
 		return manager
 
@@ -320,6 +326,7 @@ class ToxToolsExt:
 				manager = op(item[1].val)
 				doVersion = manager.par.Updateversions.eval()
 				self.ExternalizeComp(compToSave, pathInfo=None, doVersion = doVersion)
+				self.DirtyCompsDialog.par.Windowcomp.eval().par.winclose.pulse()
 			self.PromptUnsavedComps()
 
 	def SaveSelectedAndQuit(self):

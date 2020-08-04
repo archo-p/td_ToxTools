@@ -1,7 +1,8 @@
-4-16-2020 v0.1.3
+8-4-2020 v0.2.2
 
-Getting things ready for use.  Organized parameters and added simple conifguration setups for package and devToxManager
-Help texts added for reference.
+- Fixed so that Save Backups off actually works and will no longer make the Backup folder or save timestamped tox copy if the toffgle is off
+- Dirty Tox dialog will close apon pressing save selected, it will re-check for dity and reopen if there are still dirty comps, figured this was a good way to make sure you know there are still dirty toxes
+- hard set an attribute in tox tools related to there only being a single manager in this current version so that there is no searching for correct manager, will make thigns faster.  In later version will add a check for whether there are other managers, but for now we are only using the one embedded in the tool.
 
 7-24-2020 v0.2.1
 
@@ -12,3 +13,11 @@ Fixes and refinements for Intent Dev usage.
 - fixed unsaved list dialog so that all dirty toxes show selected on display
 - added Save Root Only toggle to manager, meaning only that comp will save with the save shortcut
 - added checks when in this Save Root Only mode to warn user if they've saved from within another external COMP and provide options
+
+
+4-16-2020 v0.1.3
+
+Getting things ready for use.  Organized parameters and added simple conifguration setups for package and devToxManager
+Help texts added for reference.
+
+

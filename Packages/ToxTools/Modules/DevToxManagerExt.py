@@ -120,7 +120,7 @@ class DevToxManagerExt:
 		else:
 			savePath = '/'.join(comp.par.externaltox.val.split('/')[:-1])
 			pathInfo.update({'savePath' : savePath})
-			saveResult = op.ToxTools.ExternalizeComp(comp, pathInfo, doVersion=updateVersions)
+			saveResult = op.ToxTools.ExternalizeComp(comp, pathInfo, doVersion=updateVersions, backupInfo=backupInfo)
 		
 		# Generate a pop-up if parent is already external and should be saved and the current comp is newlyExternalized
 		parentExt = saveResult.get('parentExternal')
@@ -208,8 +208,9 @@ class DevToxManagerExt:
 
 	def GetBackupInfo(self):
 		saveBackups = self.ownerComp.par.Savebackups.val
+		print('!!!!! Save Backups is ', saveBackups)
 		backupInfo = None
-		if saveBackups == True:
+		if saveBackups:
 			backupInfo = {'date':True, 'suffix':None}
 		
 		return backupInfo
