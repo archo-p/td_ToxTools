@@ -71,8 +71,6 @@ class DevToxManagerExt:
 		backupInfo = self.GetBackupInfo()
 
 		newlyExternalized = False
-		if comp.par.externaltox == '':
-			newlyExternalized = True
 
 		saveMsgBoxTitle = "Externalize COMP"
 		saveMsgBoxMsg = "This COMP (" + comp.name + ") is not yet externalized.\n\nHow would you like to externalize this TOX?"
@@ -88,6 +86,7 @@ class DevToxManagerExt:
 
 		# Check if comp is not external
 		if comp.par.externaltox == '':
+			newlyExternalized = True
 			confirmation = ui.messageBox(saveMsgBoxTitle, saveMsgBoxMsg, buttons = saveMsgBoxBtns)
 
 			# User selected "Select Folder"
@@ -115,30 +114,33 @@ class DevToxManagerExt:
 				self.ownerComp.openParameters()
 
 			saveResult = op.ToxTools.ExternalizeComp(comp, pathInfo=pathInfo, backupInfo=backupInfo, doVersion=updateVersions, enableToeBackup=enableToeBackup)
-		
+			
+			# Generate a pop-up if parent is already external and should be saved and the current comp is newlyExternalized
+			parentExt = saveResult.get('parentExternal')
+			if newlyExternalized == True:
+				if parentExt == True:
+					allowParentSave = self.ownerComp.par.Allowparentsave.val
+
+					if allowParentSave:
+						confirmation = ui.messageBox(saveParentTitle, saveParentMsg, buttons = saveParentBtns)
+
+						# User selected "Yes" to saving the parent COMP
+						if confirmation == 1:
+							op.ToxTools.ExternalizeComp(comp.parent(), pathInfo=None)
+					else:
+						title = "Warning"
+						text = "The parent component (" + comp.parent().path + ") will not be saved because parent saving is off.\nYou will need to manually save the parent component to ensure your work is saved."
+						btns = ['OK']
+						warning = ui.messageBox(title, text, buttons = btns)
 		# Comp is already externalized
 		else:
-			savePath = '/'.join(comp.par.externaltox.val.split('/')[:-1])
-			pathInfo.update({'savePath' : savePath})
+			#savePath = '/'.join(comp.par.externaltox.val.split('/')[:-1])
+			#savePath = None
+			#pathInfo.update({'savePath' : savePath})
+			pathInfo = None
 			saveResult = op.ToxTools.ExternalizeComp(comp, pathInfo, doVersion=updateVersions, backupInfo=backupInfo)
 		
-		# Generate a pop-up if parent is already external and should be saved and the current comp is newlyExternalized
-		parentExt = saveResult.get('parentExternal')
-		if newlyExternalized == True:
-			if parentExt == True:
-				allowParentSave = self.ownerComp.par.Allowparentsave.val
-
-				if allowParentSave:
-					confirmation = ui.messageBox(saveParentTitle, saveParentMsg, buttons = saveParentBtns)
-
-					# User selected "Yes" to saving the parent COMP
-					if confirmation == 1:
-						op.ToxTools.ExternalizeComp(comp.parent(), pathInfo=None)
-				else:
-					title = "Warning"
-					text = "The parent component (" + comp.parent().path + ") will not be saved because parent saving is off.\nYou will need to manually save the parent component to ensure your work is saved."
-					btns = ['OK']
-					warning = ui.messageBox(title, text, buttons = btns)
+		
 
 	def NetworkDump(self):
 		self.scopedCompsDat = self.ownerComp.op('scopedComps')
@@ -208,7 +210,6 @@ class DevToxManagerExt:
 
 	def GetBackupInfo(self):
 		saveBackups = self.ownerComp.par.Savebackups.val
-		print('!!!!! Save Backups is ', saveBackups)
 		backupInfo = None
 		if saveBackups:
 			backupInfo = {'date':True, 'suffix':None}
@@ -217,12 +218,22 @@ class DevToxManagerExt:
 
 	def GetDirtyComps(self):
 		dirtyCompsList = []
+		dirtyCompPathSet = set()
 		rootComp = self.ownerComp.par.Rootcomp.eval()
-		externalComps = rootComp.findChildren(parValue='*.tox', parName='externaltox')
-		
-		for c in externalComps:
+		externalValComps = rootComp.findChildren(parValue='*.tox', parName='externaltox')
+		externalExprComps = rootComp.findChildren(parExpr='*', parName='externaltox')
+
+		#externalComps = rootComp.findChildren(type = COMP, parValue='*.tox', parName='externaltox', parExpr='*')
+		for c in externalValComps:
 			if c.dirty:
-				dirtyCompsList.append([c.path, self.ownerComp.path])
+				dirtyCompPathSet.add(c.path)
+		for c in externalExprComps:
+			if c.par.externaltox.eval()[-4:] == ".tox":
+				if c.dirty:
+					dirtyCompPathSet.add(c.path)
+		
+		for path in dirtyCompPathSet:
+			dirtyCompsList.append([path, self.ownerComp.path])
 
 		if rootComp.dirty:
 			dirtyCompsList.append([rootComp.path, self.ownerComp.path])
