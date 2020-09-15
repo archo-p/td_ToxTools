@@ -84,17 +84,27 @@ class ToxToolsExt:
 
 	def SaveTox(self, comp, path, doBackup = False, backupInfo = {'date':True, 'suffix':None}, enableToeBackup=False):
 		dtm = self.FindDevToxManager(comp)
-		if comp != dtm.par.Rootcomp.eval():
-			existingFilepath = path + '/' + comp.name + '.tox'
-			toxName = comp.name
-		else:
-			#existingFilepath = path + '/root_' + comp.name + '.tox'
-			# quick fix for now to make sure intent twitter project can be worked on
-			# ignoring this altogether right now since we are using Tox Folders anyways.
-			existingFilepath = path + '/' + comp.name + '.tox'
-			toxName = comp.name
+		
 
-		saveLoc = path
+		# a shitty stopgap to stop from making a defaulted path format and filename
+		formatSavePath = True
+		if (path is not None) and (comp.par.externaltox.mode == ParMode.CONSTANT):
+			saveLoc = path
+			if comp != dtm.par.Rootcomp.eval():
+				existingFilepath = path + '/' + comp.name + '.tox'
+				toxName = comp.name
+			else:
+				#existingFilepath = path + '/root_' + comp.name + '.tox'
+				# quick fix for now to make sure intent twitter project can be worked on
+				# ignoring this altogether right now since we are using Tox Folders anyways.
+				existingFilepath = path + '/' + comp.name + '.tox'
+				toxName = comp.name
+		else:
+			# if no path is provided, use the comp's external tox parameter, and reset the exsiting file path to this as well
+			saveLoc = comp.par.externaltox.eval()
+			existingFilepath = saveLoc
+			toxName = comp.name
+			formatSavePath = False
 		relPath = tdu.collapsePath(saveLoc)
 
 		try:
@@ -103,11 +113,15 @@ class ToxToolsExt:
 				if doBackup == True:
 					backedUpToxpath = self.BackupTox(existingFilepath, backupInfo)						
 			
-			# format our tox path
-			savedToxpath = '{dir_path}/{tox}.tox'.format(dir_path = relPath, tox = toxName)
+			# format our tox path or don't, if we're formatting it, we set its value
+			if formatSavePath:
+				savedToxpath = '{dir_path}/{tox}.tox'.format(dir_path = relPath, tox = toxName)
+				comp.par.externaltox = savedToxpath
+			else:
+				savedToxpath = relPath
 
 			# setup our module correctly
-			comp.par.externaltox = savedToxpath
+			
 			if backedUpToxpath == None:
 				comp.par.savebackup = enableToeBackup
 
@@ -216,8 +230,9 @@ class ToxToolsExt:
 			return {'savedTox':savedTox, 'externalToxPathPar':comp.par.externaltox.eval(), 'backedUpTox':savedToxInfo['backedUpTox'], 'parentExternal':parentExternal}
 
 		else:
-			savePath = '/'.join(comp.par.externaltox.val.split('/')[:-1])
-			self.SaveTox(comp, savePath, doBackup=True)
+			#savePath = '/'.join(comp.par.externaltox.val.split('/')[:-1])
+			savePath = None
+			self.SaveTox(comp, savePath, doBackup=saveBackups)
 
 	def UnexternalizeComp(self, comp, tagToAppend=None):
 		comp.par.externaltox = ''
@@ -319,7 +334,8 @@ class ToxToolsExt:
 				# on a bulk save
 				manager = op(item[1].val)
 				doVersion = manager.par.Updateversions.eval()
-				self.ExternalizeComp(compToSave, pathInfo=None, doVersion = doVersion)
+				doBackups = manager.par.Savebackups.eval()
+				self.ExternalizeComp(compToSave, pathInfo=None, saveBackups = doBackups)
 			self.PromptUnsavedComps()
 
 	def SaveSelectedAndQuit(self):

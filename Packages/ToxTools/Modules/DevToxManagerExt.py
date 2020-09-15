@@ -114,13 +114,14 @@ class DevToxManagerExt:
 			elif confirmation == 3:
 				self.ownerComp.openParameters()
 
-			saveResult = op.ToxTools.ExternalizeComp(comp, pathInfo=pathInfo, backupInfo=backupInfo, doVersion=updateVersions, enableToeBackup=enableToeBackup)
+			saveResult = op.ToxTools.ExternalizeComp(comp, pathInfo=pathInfo, backupInfo=backupInfo, doVersion=updateVersions, enableToeBackup=enableToeBackup, saveBackups = saveBackups)
 		
 		# Comp is already externalized
 		else:
-			savePath = '/'.join(comp.par.externaltox.val.split('/')[:-1])
+			savePath = '/'.join(comp.par.externaltox.eval().split('/')[:-1])
+			debug('!!!!   ', savePath)
 			pathInfo.update({'savePath' : savePath})
-			saveResult = op.ToxTools.ExternalizeComp(comp, pathInfo, doVersion=updateVersions)
+			saveResult = op.ToxTools.ExternalizeComp(comp, pathInfo, doVersion=updateVersions, saveBackups = saveBackups)
 		
 		# Generate a pop-up if parent is already external and should be saved and the current comp is newlyExternalized
 		parentExt = saveResult.get('parentExternal')
@@ -216,12 +217,22 @@ class DevToxManagerExt:
 
 	def GetDirtyComps(self):
 		dirtyCompsList = []
+		dirtyCompPathSet = set()
 		rootComp = self.ownerComp.par.Rootcomp.eval()
-		externalComps = rootComp.findChildren(parValue='*.tox', parName='externaltox')
-		
-		for c in externalComps:
+		externalValComps = rootComp.findChildren(parValue='*.tox', parName='externaltox')
+		externalExprComps = rootComp.findChildren(parExpr='*', parName='externaltox')
+
+		#externalComps = rootComp.findChildren(type = COMP, parValue='*.tox', parName='externaltox', parExpr='*')
+		for c in externalValComps:
 			if c.dirty:
-				dirtyCompsList.append([c.path, self.ownerComp.path])
+				dirtyCompPathSet.add(c.path)
+		for c in externalExprComps:
+			if c.par.externaltox.eval()[-4:] == ".tox":
+				if c.dirty:
+					dirtyCompPathSet.add(c.path)
+		
+		for path in dirtyCompPathSet:
+			dirtyCompsList.append([path, self.ownerComp.path])
 
 		if rootComp.dirty:
 			dirtyCompsList.append([rootComp.path, self.ownerComp.path])
