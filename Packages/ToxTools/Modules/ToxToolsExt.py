@@ -255,7 +255,10 @@ class ToxToolsExt:
 		compToSave = comp
 		manager = None
 		if self._singleManager:
-			manager = self._defaultManager
+			defManager = self._defaultManager
+			defManRoot = defManager.par.Rootcomp.eval()
+			if (bool(TDF.parentLevel(defManRoot, comp)) or (defManRoot is comp)):
+				manager = self._defaultManager
 		else:
 			devToxManagers = op('/').findChildren(tags = ['DevToxManager'])
 
