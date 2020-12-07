@@ -292,11 +292,21 @@ class ToxToolsExt:
 
 	def PromptUnsavedComps(self):
 		self.DirtyCompsTable.clear(keepFirstRow=True)
-		dirtyComps = self.GetDirtyComps()
+		dirtyComps = self.GetDirtyComps() # list of lists, each entry is [name, path, owner manager path]
+		allSaveNames = self.GetSaveNames()
+		# if there are no save names we don't check against them
+		checkSaveNames = bool(len(allSaveNames))
+		debug(allSaveNames, checkSaveNames)
 
 		if len(dirtyComps) > 0:
 			for c in dirtyComps:
-				self.DirtyCompsTable.appendRow(c + [1])
+				isSelected = 1
+				if checkSaveNames:
+					if c[0] in allSaveNames:
+						isSelected = 1
+					else:
+						isSelected = 0
+				self.DirtyCompsTable.appendRow(c[1:] + [isSelected])
 			self.DirtyCompsDialog.par.Windowcomp.eval().par.winopen.pulse()
 		
 		return len(dirtyComps)
@@ -318,6 +328,23 @@ class ToxToolsExt:
 					dirtyCompsList.append(c)
 
 		return dirtyCompsList
+
+	def GetSaveNames(self):
+		'''
+		gets name scopes from any managers and compiles a set
+		'''
+		allSaveNames = set([])
+		root = op('/')
+		devToxManagers = root.findChildren(tags = ['DevToxManager'])
+		dirtyCompsList = []
+		if len(devToxManagers) > 0:
+			for dtm in devToxManagers:
+				dtmSaveNameSet = dtm.GetSaveNames()
+				for name in dtmSaveNameSet:
+					allSaveNames.add(name)
+		
+		return allSaveNames
+
 
 	def QuitProject(self):
 		confirmation = ui.messageBox('Confirmation', "Are you sure you'd like to quit?\nAny unsaved external Comps will not be saved!", buttons=['Quit', 'Cancel'])

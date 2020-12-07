@@ -59,7 +59,14 @@ class DevToxManagerExt:
 				option =  ui.messageBox(msgBoxTitle, msgBoxMsg, buttons = msgBoxBtns)
 		return option
 
-
+	def CheckNameIsScoped(self, name):
+		checkNames = self.GetSaveNames()
+		if len(checkNames) < 1:
+			return True
+		if name in checkNames:
+			return True
+		else:
+			return False
 
 	def DtmExternalizeComp(self, comp):
 		# Default vars/args and values
@@ -84,11 +91,26 @@ class DevToxManagerExt:
 		saveParentMsg = "This COMP (" + comp.name + ") has just been externalized!\n\nWould you also like to save its parent TOX?"
 		saveParentBtns = ["No", "Yes"]
 
+		scopeMsgBoxTitle = "Unscoped Component"
+		scopeMsgBoxMsg = "This COMP (" + comp.name + ") is out of your current save name scope.\n\nHow would you like to proceed?"
+		scopeMsgBoxBtns = ["Cancel", "Save Anyways", "Open Manager Settings"]
+
+		# Check if name is within name scope
+		if self.CheckNameIsScoped(comp.name) is False:
+			userResponse = ui.messageBox(scopeMsgBoxTitle, scopeMsgBoxMsg, buttons = scopeMsgBoxBtns)
+			debug(userResponse)
+			if (userResponse == 0) or (userResponse is -1):
+				return
+			elif userResponse == 2:
+				self.ownerComp.openParameters()
+				return
+
 		# Check if comp is not external
 		if comp.par.externaltox == '':
 			newlyExternalized = True
 			confirmation = ui.messageBox(saveMsgBoxTitle, saveMsgBoxMsg, buttons = saveMsgBoxBtns)
-
+			if (confirmation == -1) or (confirmation == 0):
+				return
 			# User selected "Select Folder"
 			if confirmation == 1:
 				savePath = ui.chooseFolder(title="TOX Location", start=project.folder)
@@ -173,7 +195,8 @@ class DevToxManagerExt:
 		externalComps = None
 
 		confirmation = ui.messageBox(detoxTitle, detoxMsg, buttons=detoxBtns)
-		
+		if (confirmation == -1) or (confirmation == 0):
+			return
 		# User chose to unexternalize Comps including Netdumptags
 		if confirmation == 1:
 			netDumpTags = tdu.split(self.ownerComp.par.Netdumptags.eval(), True)
@@ -217,6 +240,7 @@ class DevToxManagerExt:
 		return backupInfo
 
 	def GetDirtyComps(self):
+		alwaysIgnoreTags = tdu.split(self.ownerComp.par.Alwaysignoretags.eval(), True)
 		dirtyCompsList = []
 		dirtyCompPathSet = set()
 		rootComp = self.ownerComp.par.Rootcomp.eval()
@@ -233,12 +257,24 @@ class DevToxManagerExt:
 					dirtyCompPathSet.add(c.path)
 		
 		for path in dirtyCompPathSet:
-			dirtyCompsList.append([path, self.ownerComp.path])
+			# Check whether compToSave has an "Ignore" tag
+			if bool(set(op(path).tags).intersection(alwaysIgnoreTags)) == False:
+				dirtyCompsList.append([op(path).name, path, self.ownerComp.path])
 
 		if rootComp.dirty:
-			dirtyCompsList.append([rootComp.path, self.ownerComp.path])
+			dirtyCompsList.append([rootComp.name, rootComp.path, self.ownerComp.path])
 
 		return dirtyCompsList
+
+	def GetSaveNames(self):
+		'''
+		looks at the Tox Name Scope par and returns a set of names, space delimited parsing
+		'''
+		namesString = self.ownerComp.par.Toxnamescope.eval()
+		namesSet = set(tdu.split(namesString, True))
+		# if len(namesString) > 0:
+		# 	namesSet = set(namesString.split(' '))
+		return namesSet
 
 	def ShowPackageParameters(self):
 		op.ToxTools.openParameters()
