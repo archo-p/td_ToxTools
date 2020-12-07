@@ -1,3 +1,10 @@
+9-15-2020 v0.2.4
+
+- fixed things up so that already externalized comps save to whatever they are set to or expressed to without resetting external tox value and also preserving expressed external tox parameters
+- updated function flow to always route through managers, so that bulk save confroms to all parameters of manager
+- possibly still some edge cases to drudge up
+
+
 8-4-2020 v0.2.2
 
 - Fixed so that Save Backups off actually works and will no longer make the Backup folder or save timestamped tox copy if the toffgle is off
