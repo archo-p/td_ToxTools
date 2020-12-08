@@ -88,7 +88,7 @@ class ToxToolsExt:
 
 	def SaveTox(self, comp, path, doBackup = False, backupInfo = {'date':True, 'suffix':None}, enableToeBackup=False):
 		dtm = self.FindDevToxManager(comp)
-		debug('!!!!! ', path)
+		# debug('!!!!! ', path)
 		# a shitty stop gap to stop from making a defaulted path format and filename
 		formatSavePath = True
 		if (path is not None) and (comp.par.externaltox.mode == ParMode.CONSTANT):
@@ -296,7 +296,7 @@ class ToxToolsExt:
 		allSaveNames = self.GetSaveNames()
 		# if there are no save names we don't check against them
 		checkSaveNames = bool(len(allSaveNames))
-		debug(allSaveNames, checkSaveNames)
+		# debug(allSaveNames, checkSaveNames)
 
 		if len(dirtyComps) > 0:
 			for c in dirtyComps:
